@@ -1,0 +1,16 @@
+<ivy-module version="1.0">
+	<info organisation="com.ss" module="ss-common-gwt" />
+	<configurations>
+        <conf name="compile" visibility="private" transitive="false" />
+        <conf name="client" visibility="public" />       
+        <conf name="sources" visibility="public"/>          
+        <conf name="master" visibility="public"/>          
+    </configurations>
+    <publications>
+        <artifact name="ss-common-gwt" type="jar"  conf="client" ext="jar"/>                
+        <artifact name="ss-common-gwt" type="source"  conf="sources" ext="jar"/>
+    </publications>	
+	<dependencies>
+		
+	</dependencies>
+</ivy-module>
