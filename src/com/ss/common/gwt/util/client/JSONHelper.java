@@ -1,6 +1,7 @@
 package com.ss.common.gwt.util.client;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.google.gwt.json.client.JSONArray;
@@ -191,11 +192,18 @@ public class JSONHelper {
 	}
 
 	public static <RESULT> List<RESULT> getArray(JSONValue json, ValueParser<RESULT> valueParser) {
-		List<RESULT> res = new ArrayList<RESULT>();
-		JSONArray array = json.isArray();
-		if (array == null || array.size() == 0) {
-			return res;
+		if (json == null) {
+			return Collections.emptyList();
 		}
+		JSONArray array = json.isArray();
+		if (array == null) {
+			return Collections.emptyList();
+		}
+		int size = array.size();
+		if (size == 0) {
+			return Collections.emptyList();
+		}
+		List<RESULT> res = new ArrayList<RESULT>(size);
 		for (int i = 0; i < array.size(); i++) {
 			JSONValue item = array.get(i);
 			if (item != null) {
