@@ -1,20 +1,44 @@
 package com.ss.common.gwt.jsonrpc.client;
 
 import java.util.Collection;
+import java.util.List;
 
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONString;
 import com.ss.common.gwt.util.client.UIHelper;
 
-public class GwtJsonDTOBuilder {
+public class GwtJsonBuilder {
 
 	private JSONObject json;
 
-	public GwtJsonDTOBuilder() {
+	public GwtJsonBuilder() {
 		json = new JSONObject();
 	}
 
-	public <T extends GwtJsonDTO> GwtJsonDTOBuilder append(String param, T dto) {
+	public GwtJsonBuilder append(String param, String value) {
+		if (UIHelper.isEmpty(value)) {
+			return this;
+		}
+		json.put(param, new JSONString(value));
+		return this;
+	}
+
+	public GwtJsonBuilder append(String param, List<String> values) {
+		if (UIHelper.isEmpty(values)) {
+			return this;
+		}
+		JSONArray array = new JSONArray();
+		int index = 0;
+		for (String value : values) {
+			array.set(index, new JSONString(value));
+			index++;
+		}
+		json.put(param, array);
+		return this;
+	}
+
+	public <T extends GwtJsonDto> GwtJsonBuilder append(String param, T dto) {
 		if (dto == null) {
 			return this;
 		}
@@ -23,7 +47,7 @@ public class GwtJsonDTOBuilder {
 		return this;
 	}
 
-	public <T extends GwtJsonDTO> GwtJsonDTOBuilder append(String param, Collection<T> dtos) {
+	public <T extends GwtJsonDto> GwtJsonBuilder append(String param, Collection<T> dtos) {
 		if (UIHelper.isEmpty(dtos)) {
 			return this;
 		}

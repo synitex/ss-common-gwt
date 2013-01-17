@@ -11,6 +11,6 @@
         <artifact name="ss-common-gwt" type="source"  conf="sources" ext="jar"/>
     </publications>	
 	<dependencies>
-		
+		<dependency org="com.google.code.gson" name="gson" rev="2.2.2" conf="client,sources->default" />
 	</dependencies>
 </ivy-module>

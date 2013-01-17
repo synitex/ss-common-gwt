@@ -6,7 +6,7 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.json.client.JSONObject;
-import com.ss.common.gwt.jsonrpc.shared.AjaxRequestConstants;
+import com.ss.common.gwt.jsonrpc.shared.JsonRpcConstants;
 import com.ss.common.gwt.util.client.JSONHelper;
 import com.ss.common.gwt.util.client.UIHelper;
 
@@ -15,10 +15,12 @@ public class AjaxRequest implements RequestCallback {
 	private AjaxRequestCallback callback;
 	private JSONObject data;
 	private String method;
+	private String service;
 
-	public AjaxRequest(String method, JSONObject data) {
+	public AjaxRequest(String service, String method, JSONObject data) {
 		this.data = data;
 		this.method = method;
+		this.service = service;
 	}
 
 	public void send(AjaxRequestCallback callback) {
@@ -27,14 +29,14 @@ public class AjaxRequest implements RequestCallback {
 		rb.setHeader("Content-Type", "application/x-www-form-urlencoded");
 
 		StringBuilder sb = new StringBuilder();
-		sb.append(AjaxRequestConstants.METHOD);
+		sb.append(JsonRpcConstants.METHOD);
 		sb.append("=");
-		sb.append(method);
+		sb.append(service + "." + method);
 
 		if (data != null) {
 			String dataAsJson = data.toString();
 			sb.append("&");
-			sb.append(AjaxRequestConstants.DATA);
+			sb.append(JsonRpcConstants.DATA);
 			sb.append("=");
 			sb.append(dataAsJson);
 		}
@@ -69,13 +71,13 @@ public class AjaxRequest implements RequestCallback {
 			return;
 		}
 
-		String errorKey = JSONHelper.getString(json, AjaxRequestConstants.ERROR);
+		String errorKey = JSONHelper.getString(json, JsonRpcConstants.ERROR);
 		if (!UIHelper.isEmpty(errorKey)) {
 			callback.onApplicationError(errorKey);
 			return;
 		}
 
-		JSONObject result = JSONHelper.getJsonObject(json, AjaxRequestConstants.DATA);
+		JSONObject result = JSONHelper.getJsonObject(json, JsonRpcConstants.DATA);
 		callback.onResponse(result);
 	}
 
