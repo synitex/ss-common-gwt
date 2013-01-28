@@ -6,9 +6,9 @@ import com.google.gwt.json.client.JSONObject;
 
 public interface AjaxRequestCallback {
 
-	void onResponse(JSONObject result);
+	void onResponse(JSONObject json);
 
-	void onApplicationError(String errorKey);
+	void onApplicationError(GwtErrorDto error);
 
 	void onRequestError(RequestException ex);
 

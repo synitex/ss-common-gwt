@@ -1,11 +1,13 @@
 package com.ss.common.gwt.jsonrpc.client;
 
-import java.util.Collection;
 import java.util.List;
 
+import com.google.gwt.core.shared.GWT;
 import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONBoolean;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
+import com.google.gwt.json.client.JSONValue;
 import com.ss.common.gwt.util.client.UIHelper;
 
 public class GwtJsonBuilder {
@@ -16,50 +18,55 @@ public class GwtJsonBuilder {
 		json = new JSONObject();
 	}
 
-	public GwtJsonBuilder append(String param, String value) {
-		if (UIHelper.isEmpty(value)) {
+	public GwtJsonBuilder append(String param, Object value) {
+		if (value == null) {
 			return this;
 		}
-		json.put(param, new JSONString(value));
+		JSONValue jsonVal = toJsonValue(value);
+		if(jsonVal == null) {
+			GWT.log("Failed to inject " + value.getClass() + " with param " + param + ", because object can not be transformed to json object.");
+			return this;
+		}
+		json.put(param, jsonVal);
 		return this;
 	}
 
-	public GwtJsonBuilder append(String param, List<String> values) {
+
+	private JSONValue toJsonValue(Object value) {
+		if (value instanceof String) {
+			return new JSONString((String) value);
+		} else if (value instanceof Long) {
+			return new JSONString(((Long) value).toString());
+		} else if (value instanceof Boolean) {
+			return JSONBoolean.getInstance(Boolean.TRUE.equals((Boolean)value));
+		} else if (value instanceof Integer) {
+			return new JSONString(((Integer) value).toString());
+		} else if(value instanceof GwtJsonDto) {
+			GwtJsonDto gwtDto = (GwtJsonDto) value;
+			return gwtDto.toJsonObject();
+		} else if (value instanceof List) {
+			return listToJsonValue((List) value);
+		} else {
+			return null;
+		}
+	}
+
+	private JSONValue listToJsonValue(List values) {
 		if (UIHelper.isEmpty(values)) {
-			return this;
+			return null;
 		}
 		JSONArray array = new JSONArray();
 		int index = 0;
-		for (String value : values) {
-			array.set(index, new JSONString(value));
+		for (Object value : values) {
+			JSONValue jsonVal = toJsonValue(value);
+			if (jsonVal != null) {
+				array.set(index, jsonVal);
+			} else {
+				GWT.log("Unsupported list type detected " + value.getClass());
+			}
 			index++;
 		}
-		json.put(param, array);
-		return this;
-	}
-
-	public <T extends GwtJsonDto> GwtJsonBuilder append(String param, T dto) {
-		if (dto == null) {
-			return this;
-		}
-		JSONObject jsonObj = dto.toJsonObject();
-		json.put(param, jsonObj);
-		return this;
-	}
-
-	public <T extends GwtJsonDto> GwtJsonBuilder append(String param, Collection<T> dtos) {
-		if (UIHelper.isEmpty(dtos)) {
-			return this;
-		}
-		JSONArray array = new JSONArray();
-		int index = 0;
-		for (T dto : dtos) {
-			JSONObject jsonObj = dto.toJsonObject();
-			array.set(index, jsonObj);
-			index++;
-		}
-		json.put(param, array);
-		return this;
+		return array;
 	}
 
 	public String toString() {

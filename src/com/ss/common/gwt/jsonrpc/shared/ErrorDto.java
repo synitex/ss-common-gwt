@@ -2,20 +2,30 @@ package com.ss.common.gwt.jsonrpc.shared;
 
 import com.google.gson.annotations.SerializedName;
 
-public abstract class ErrorDto implements JsonDto {
+public class ErrorDto implements JsonDto {
 
-	public static final String JSON_MESSAGE = "m";
-	public static final String JSON_ERROR_FLAG = "error";
-	public static final String ERROR_FLAG = "error";
+	public static final String PARAM_MESSAGE = "m";
+	public static final String PARAM_KEY = "k";
+	public static final String PARAM_PREFIX = "p";
 
-	@SerializedName(JSON_MESSAGE)
+	@SerializedName(PARAM_MESSAGE)
 	private String message;
 
-	@SerializedName(JSON_ERROR_FLAG)
-	private String errorFlag = ERROR_FLAG;
+	@SerializedName(PARAM_KEY)
+	private String key;
+
+	@SerializedName(PARAM_PREFIX)
+	private String prefix;
+
 
 	public ErrorDto() {
 
+	}
+
+	public ErrorDto(String msg, String key, String prefix) {
+		this.message = msg;
+		this.key = key;
+		this.prefix = prefix;
 	}
 
 	public ErrorDto(String msg) {
@@ -30,12 +40,20 @@ public abstract class ErrorDto implements JsonDto {
 		this.message = message;
 	}
 
-	public String getErrorFlag() {
-		return errorFlag;
+	public String getKey() {
+		return key;
 	}
 
-	public void setErrorFlag(String errorFlag) {
-		this.errorFlag = errorFlag;
+	public void setKey(String key) {
+		this.key = key;
+	}
+
+	public String getPrefix() {
+		return prefix;
+	}
+
+	public void setPrefix(String prefix) {
+		this.prefix = prefix;
 	}
 
 }

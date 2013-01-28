@@ -119,6 +119,11 @@ public class JSONHelper {
 		return Integer.valueOf(v);
 	}
 
+	public static Integer getInt(JSONObject json, String param) {
+		Integer value = getInteger(json, param);
+		return value == null ? 0 : value.intValue();
+	}
+
 	public static List<Integer> getIntegers(JSONObject json, String param) {
 		List<Integer> res = getArray(json, param, new ValueParser<Integer>() {
 			@Override

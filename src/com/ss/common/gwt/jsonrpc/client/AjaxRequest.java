@@ -71,14 +71,14 @@ public class AjaxRequest implements RequestCallback {
 			return;
 		}
 
-		String errorKey = JSONHelper.getString(json, JsonRpcConstants.ERROR);
-		if (!UIHelper.isEmpty(errorKey)) {
-			callback.onApplicationError(errorKey);
-			return;
+		GwtErrorDto errorDto = new GwtErrorDto().fromJson(json);
+		if (errorDto.isNotEmpty()) {
+			callback.onApplicationError(errorDto);
+		} else {
+			JSONObject result = JSONHelper.getJsonObject(json, JsonRpcConstants.DATA);
+			callback.onResponse(result);
 		}
-
-		JSONObject result = JSONHelper.getJsonObject(json, JsonRpcConstants.DATA);
-		callback.onResponse(result);
+		
 	}
 
 	@Override

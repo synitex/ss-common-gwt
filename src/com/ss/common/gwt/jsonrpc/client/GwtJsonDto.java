@@ -7,6 +7,6 @@ public interface GwtJsonDto extends JsonDto {
 
 	JSONObject toJsonObject();
 
-	JsonDto fromJson(JSONObject data);
+	JsonDto fromJson(JSONObject json);
 
 }
