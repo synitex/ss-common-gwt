@@ -10,22 +10,57 @@ import com.ss.common.gwt.jsonrpc.shared.JsonRpcConstants;
 import com.ss.common.gwt.util.client.JSONHelper;
 import com.ss.common.gwt.util.client.UIHelper;
 
-public class AjaxRequest implements RequestCallback {
+/**
+ * 
+ * 
+ * @author sergey.sinica
+ * 
+ */
+public class JsonRpcRequest implements RequestCallback {
 
-	private AjaxRequestCallback callback;
+	private JsonRpcRequestCallback callback;
 	private JSONObject data;
 	private String method;
 	private String service;
 
-	public AjaxRequest(String service, String method, JSONObject data) {
+	private String url;
+	private JsonRpcRequestLifeCycleListener lifeCycleListener;
+
+	JsonRpcRequest(String service, String method, JSONObject data) {
 		this.data = data;
 		this.method = method;
 		this.service = service;
 	}
 
-	public void send(AjaxRequestCallback callback) {
+	public void setUrl(String url) {
+		this.url = url;
+	}
+
+	public void setLifeCycleListener(JsonRpcRequestLifeCycleListener lifeCycleListener) {
+		this.lifeCycleListener = lifeCycleListener;
+	}
+
+	public void send(JsonRpcRequestCallback callback) {
+		if (callback == null) {
+			throw new IllegalArgumentException("Callback can not be null!");
+		}
 		this.callback = callback;
-		RequestBuilder rb = new RequestBuilder(RequestBuilder.POST, "/cmd");
+
+		if (lifeCycleListener != null) {
+			lifeCycleListener.beforeCall();
+		}
+
+		try {
+			sendImpl();
+		} finally {
+			if (lifeCycleListener != null) {
+				lifeCycleListener.afterCall();
+			}
+		}
+	}
+
+	private void sendImpl() {
+		RequestBuilder rb = new RequestBuilder(RequestBuilder.POST, "/" + url);
 		rb.setHeader("Content-Type", "application/x-www-form-urlencoded");
 
 		StringBuilder sb = new StringBuilder();
@@ -46,12 +81,15 @@ public class AjaxRequest implements RequestCallback {
 		try {
 			rb.send();
 		} catch (RequestException e) {
-			callback.onRequestError(e);
+			if (callback != null) {
+				callback.onRequestError(e);
+			}
 		}
 	}
 
 	@Override
 	public void onResponseReceived(Request request, Response response) {
+
 		String responseText = response.getText();
 
 		if (UIHelper.isEmpty(responseText)) {
@@ -67,18 +105,19 @@ public class AjaxRequest implements RequestCallback {
 		}
 
 		if (json == null) {
-			callback.onResponse(null);
+			callback.onResponseParseError(new RuntimeException("No response json is parsed"));
+			return;
+		}
+		
+		JSONObject errorJson = JSONHelper.getJsonObject(json, JsonRpcConstants.ERROR);
+		if(errorJson != null) {
+			GwtErrorDto errorDto = new GwtErrorDto().fromJson(errorJson);
+			callback.onApplicationError(errorDto);
 			return;
 		}
 
-		GwtErrorDto errorDto = new GwtErrorDto().fromJson(json);
-		if (errorDto.isNotEmpty()) {
-			callback.onApplicationError(errorDto);
-		} else {
-			JSONObject result = JSONHelper.getJsonObject(json, JsonRpcConstants.DATA);
-			callback.onResponse(result);
-		}
-		
+		JSONObject result = JSONHelper.getJsonObject(json, JsonRpcConstants.DATA);
+		callback.onResponse(result);
 	}
 
 	@Override

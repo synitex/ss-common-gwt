@@ -4,7 +4,7 @@ import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.json.client.JSONObject;
 
-public interface AjaxRequestCallback {
+public interface JsonRpcRequestCallback {
 
 	void onResponse(JSONObject json);
 

@@ -1,6 +1,6 @@
 package com.ss.common.gwt.jsonrpc.client;
 
-import java.util.List;
+import java.util.Collection;
 
 import com.google.gwt.core.shared.GWT;
 import com.google.gwt.json.client.JSONArray;
@@ -44,14 +44,14 @@ public class GwtJsonBuilder {
 		} else if(value instanceof GwtJsonDto) {
 			GwtJsonDto gwtDto = (GwtJsonDto) value;
 			return gwtDto.toJsonObject();
-		} else if (value instanceof List) {
-			return listToJsonValue((List) value);
+		} else if (value instanceof Collection) {
+			return listToJsonValue((Collection) value);
 		} else {
 			return null;
 		}
 	}
 
-	private JSONValue listToJsonValue(List values) {
+	private JSONValue listToJsonValue(Collection values) {
 		if (UIHelper.isEmpty(values)) {
 			return null;
 		}
